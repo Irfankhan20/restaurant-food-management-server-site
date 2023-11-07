@@ -40,10 +40,15 @@ async function run() {
 
         });
 
-        // read foodItems data from mongo db
+        // read all foodItems data from mongo db
         app.get("/allfoods", async (req, res) => {
+            const page = parseInt(req.query.page);
+            const size = parseInt(req.query.size);
+            console.log(page,size);
+            console.log('pagination query',req.query);
             const query = {};
-            const result = await foodsCollection.find(query).toArray();
+            const result = await foodsCollection.find(query).skip(page*size)
+            .limit(size).toArray();
             res.send(result);
         });
 
