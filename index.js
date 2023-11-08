@@ -45,16 +45,34 @@ async function run() {
         app.get("/allfoods", async (req, res) => {
             const page = parseInt(req.query.page);
             const size = parseInt(req.query.size);
-            console.log(page, size);
-            console.log('pagination query', req.query);
+            const searchText = req.query.search || ''; 
+            console.log(page, size, searchText);
+            
             const query = {};
-            const result = await foodsCollection.find(query).skip(page * size)
-                .limit(size).toArray();
+        
+            if (searchText) {
+                query.foodName = { $regex: new RegExp(searchText, 'i') }; // 'i' 
+            }
+            
+            const result = await foodsCollection.find(query)
+                .skip(page * size)
+                .limit(size)
+                .toArray();
             res.send(result);
         });
+        // app.get("/allfoods", async (req, res) => {
+        //     const page = parseInt(req.query.page);
+        //     const size = parseInt(req.query.size);
+        //     console.log(page, size);
+        //     console.log('pagination query', req.query);
+        //     const query = {};
+        //     const result = await foodsCollection.find(query).skip(page * size)
+        //         .limit(size).toArray();
+        //     res.send(result);
+        // });
 
         //find foodItems by email
-        app.get('/allfoods', async (req, res) => {
+        app.get('/addedfoods', async (req, res) => {
             try {
                 let query = {};
                 if (req.query.email) {
@@ -99,7 +117,7 @@ async function run() {
         })
 
         //find orderedItems by email
-        app.get('/orders', async (req, res) => {
+        app.get('/orderFoods', async (req, res) => {
             try {
                 console.log(req.query.email);
                 let query = {};
@@ -113,6 +131,14 @@ async function run() {
                 res.status(500).send("Internal Server Error");
             }
         });
+        
+        //delete order food item
+        app.delete("/orderFoods/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await orderedCollection.deleteOne(query);
+            res.send(result);
+          })
 
          
 
