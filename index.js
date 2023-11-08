@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -31,6 +31,7 @@ async function run() {
 
         // mongodb collection 
         const foodsCollection = client.db("meetBox").collection("addFood");
+        const orderedCollection = client.db("meetBox").collection("orderedFood");
 
         //post operation of add a food item
         app.post("/addfoods", async (req, res) => {
@@ -44,11 +45,11 @@ async function run() {
         app.get("/allfoods", async (req, res) => {
             const page = parseInt(req.query.page);
             const size = parseInt(req.query.size);
-            console.log(page,size);
-            console.log('pagination query',req.query);
+            console.log(page, size);
+            console.log('pagination query', req.query);
             const query = {};
-            const result = await foodsCollection.find(query).skip(page*size)
-            .limit(size).toArray();
+            const result = await foodsCollection.find(query).skip(page * size)
+                .limit(size).toArray();
             res.send(result);
         });
 
@@ -73,6 +74,21 @@ async function run() {
         app.get('/foodItemsCount', async (req, res) => {
             const count = await foodsCollection.estimatedDocumentCount();
             res.send({ count })
+        })
+        //food item get by id
+        app.get('/allfoods/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await foodsCollection.findOne(query);
+            res.send(result);
+        })
+
+        //post ordered food info
+        app.post('/orderedfoods', async (req, res) => {
+            const orderedFoods = req.body;
+            console.log(orderedFoods);
+            const result = await orderedCollection.insertOne(orderedFoods);
+            res.send(result);
         })
 
         // Send a ping to confirm a successful connection
