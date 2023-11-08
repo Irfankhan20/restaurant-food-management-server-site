@@ -60,16 +60,7 @@ async function run() {
                 .toArray();
             res.send(result);
         });
-        // app.get("/allfoods", async (req, res) => {
-        //     const page = parseInt(req.query.page);
-        //     const size = parseInt(req.query.size);
-        //     console.log(page, size);
-        //     console.log('pagination query', req.query);
-        //     const query = {};
-        //     const result = await foodsCollection.find(query).skip(page * size)
-        //         .limit(size).toArray();
-        //     res.send(result);
-        // });
+        
 
         //find foodItems by email
         app.get('/addedfoods', async (req, res) => {
@@ -98,6 +89,27 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await foodsCollection.findOne(query);
+            res.send(result);
+        })
+        //added food update
+        app.put('/updateaddfood/:id',async(req,res)=>{
+            const id = req.params.id;
+            const updateInfo = req.body;
+            const filter = {_id: new ObjectId(id)}
+            const options = {upset:true};
+            const updateData = {
+                $set : {
+                    foodName: updateInfo.foodName,
+                    price: updateInfo.price,
+                    foodCategory: updateInfo.foodCategory,
+                    origin: updateInfo.origin,
+                    quantity: updateInfo.quantity,
+                    ratings: updateInfo.ratings,
+                    photo: updateInfo.photo,
+                    details: updateInfo.details
+                },
+            };
+            const result = await foodsCollection.updateOne(filter, updateData, options);
             res.send(result);
         })
 
