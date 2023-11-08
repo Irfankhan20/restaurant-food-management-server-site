@@ -58,7 +58,7 @@ async function run() {
             try {
                 let query = {};
                 if (req.query.email) {
-                    query = { addByEmail: req.query.email }; // Use "addByEmail" field to filter by email
+                    query = { addByEmail: req.query.email }; 
                 }
 
                 const result = await foodsCollection.find(query).toArray();
@@ -90,6 +90,31 @@ async function run() {
             const result = await orderedCollection.insertOne(orderedFoods);
             res.send(result);
         })
+
+        //all orderedItems get
+        app.get('/orders', async(req,res)=>{
+            const query = {};
+            const result = await orderedCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        //find orderedItems by email
+        app.get('/orders', async (req, res) => {
+            try {
+                console.log(req.query.email);
+                let query = {};
+                if (req.query?.email) {
+                    query = { buyerEmail: req.query.email };
+                }
+                const result = await orderedCollection.find(query).toArray();
+                res.send(result);
+            } catch (error) {
+                console.error(error);
+                res.status(500).send("Internal Server Error");
+            }
+        });
+
+         
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
